@@ -4,7 +4,7 @@
 ## Overview
 These are some common utilities that I frequently reuse across projects, so separating them out into their own repo makes it easier to incorporate them.  
 Currently defined in their own .c files, but may later change to a *single file library* type design to remove need for messing about with sub-Makefiles and shared/static linking.  
-"Cross-platform" in quotation marks since the utilities are written exclusively as C11-standard conformant with no platform-specific dependencies, but MSVC does not support C11 (or even C99) so usage with Windows is a little trickier; more on that in [Notes on cross-platform usage](#x-plat-usage).  
+"Cross-platform" in quotation marks since the utilities are written exclusively as C11-standard conformant with no platform-specific dependencies, but MSVC does not support C11 (or even C99) so usage with Windows is a little trickier; more on that in [Notes on cross-platform usage](#-Notes-on-cross-platform-usage).  
 
 ## Current Status
 **Data structures:**
@@ -44,8 +44,7 @@ To include CMore's header files in a separate project, add the root directory of
 This added degree of separation is mainly as a namespace-ish distinction since the current filenames are very generic and may interfere with other libraries. This may be changed later by making the header files more uniquely named.  
 Naturally, this sub-path malarky can be avoided by just adding the `"cmore/"` directory to your include path.
 
-**Notes on cross-platform usage**
-(#x-plat-usage)
+## Notes on cross-platform usage
 Development was done mainly on Linux, with frequent swapping to Windows to ensure the library remains cross-platform. An important note is that, as of this writing, Visual Studio's MSVC does not support the C11 features used here. Visual Studio also recently added built-in support for switching to Clang for compilation, but feature-support with Clang in this way is also incomplete; calls to various Atomic-library functions throw an error at compile-time with a helpful message telling us to use Window's platform-specific functions instead. This may change in the future which would allow us to incorporate straight into VS, but for now we need an alternate solution.  
 One method that works is msys2. After a bit of setting up we can get a nice bash shell running that allows us to use the library's `Makefile` which compiles down to a nice `.exe`. The WSL system also works, but we resultant binary files cannot be natively used by Windows executables. An important caveat here, however, is that to get this working an additional Atomic-wrapper had to be included. For this, [`tinycthreads`](https://tinycthread.github.io/) was used due to its portability and small footprint. Note that this is only used for the Windows build, and we'll hopefully be able to remove it altogether at a later date.
 
