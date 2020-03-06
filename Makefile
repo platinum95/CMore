@@ -1,80 +1,64 @@
 CC          = gcc
-GLSLC       = glslc
-INCLUDES    = $(PWD)/include
-CFLAGS      = -I$(INCLUDES) -O0 -Wall -Werror -Wextra -Wformat=2 -Wshadow -pedantic -g -Werror=vla
-LIBS        = -lm -lpthread -lvulkan -lglfw
+AR          = ar
+CFLAGS      = -O0 -Wall -Werror -Wextra -Wformat=2 -Wshadow -pedantic -Werror=vla
 
-DEFINES     = -DBURNER_VERSION_MAJOR=0 -DBURNER_VERSION_MINOR=0 -DBURNER_VERSION_PATCH=0
-DEFINES    := -DBURNER_NAME="Burner"
+LIBS        = -lm -lpthread
+INCLUDES    = -I$(CURDIR)/cmore
 
-ROOT_DIR        = $(PWD)/
-SRC_DIR         = ./src
-OBJ_DIR         = $(PWD)/obj
-TESTS_DIR       = ./src/tests
-RES_DIR         = ./res
-SHADER_SRC_DIR  = ./src/shaders
-SHADER_OBJ_DIR  = $(RES_DIR)/shaders
+ROOT_DIR    = $(CURDIR)
+SRC_DIR     = $(ROOT_DIR)/src
+TESTS_DIR   = $(SRC_DIR)/tests
 
-ALL_SRC     = $(wildcard $(SRC_DIR)/*.c)
-ALL_TESTS   = $(wildcard $(TESTS_DIR)/*.c)
-ALL_SHADERS = $(wildcard $(SHADER_SRC_DIR)/*)
+CMORE_OBJ_DIR   = $(ROOT_DIR)/obj
+CMORE_SHOBJ_DIR = $(ROOT_DIR)/shobj
+CMORE_TEST_OBJ_DIR = $(ROOT_DIR)/testobj
 
-BURNER_SRC  = ./src/main.c
-TEST_SRC    = ./src/tests/tests.c
+SRC         = $(wildcard $(SRC_DIR)/*.c)
+TESTS_SRC   = $(wildcard $(TESTS_DIR)/*.c)
 
-# Remove the entry-point sources from the source lists
-SRC         = $(filter-out $(BURNER_SRC),$(ALL_SRC))
-TESTS_SRC   = $(filter-out $(TEST_SRC),$(ALL_TESTS))
+OBJ         = $(patsubst $(SRC_DIR)/%.c,$(CMORE_OBJ_DIR)/%.o,$(SRC))
+SHOBJ       = $(patsubst $(SRC_DIR)/%.c,$(CMORE_SHOBJ_DIR)/%.o,$(SRC))
+TESTS_OBJ   = $(patsubst $(TESTS_DIR)/%.c,$(CMORE_TEST_OBJ_DIR)/%.o,$(TESTS_SRC))
 
-OBJ         = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRC))
-BURNER_OBJ  = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(BURNER_SRC))
-TESTS_OBJ   = $(patsubst $(TESTS_DIR)/%.c,$(OBJ_DIR)/%.o,$(TESTS_SRC))
-TEST_OBJ    = $(patsubst $(TESTS_DIR)/%.c,$(OBJ_DIR)/%.o,$(TEST_SRC))
-SHADERS_OBJ = $(patsubst $(SHADER_SRC_DIR)/%,$(SHADER_OBJ_DIR)/%.spv,$(ALL_SHADERS))
+ifeq ($(CMORE_STATIC_LIB),)
+CMORE_STATIC_LIB    = $(ROOT_DIR)/cmore.a
+endif
 
-TOOLS_DIR   = ./src/tools
+ifeq ($(CMORE_STATIC_LIB),)
+CMORE_SHARED_LIB    = $(ROOT_DIR)/cmore.so
+endif
 
-export CFLAGS
-export OBJ_DIR
-export LIBS
-export ROOT_DIR
+#$(info $(shell echo $(OBJ) ) )
 
-all: burner tests tools
+all: utils $(CMORE_STATIC_LIB) $(CMORE_SHARED_LIB) tests
 
-burner: $(OBJ) $(BURNER_OBJ) | $(SHADERS_OBJ)
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+tests: $(OBJ) $(TESTS_OBJ)
+	$(CC) -o $@ $^ $(INCLUDES) $(CFLAGS) $(LIBS)
 
-tests: $(OBJ) $(TESTS_OBJ) $(TEST_OBJ) | $(SHADERS_OBJ)
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+$(CMORE_STATIC_LIB): $(OBJ)
+	$(AR) rcs $@ $^
 
-tools:
-	$(MAKE) -C $(TOOLS_DIR)
+$(CMORE_SHARED_LIB): $(SHOBJ)
+	$(CC) -shared -o $@ $^
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) -c -o $@ $< $(CFLAGS)
+.PHONY: utils
+utils: $(OBJ)
 
-$(OBJ_DIR)/%.o: $(TESTS_DIR)/%.c
-	$(CC) -c -o $@ $< $(CFLAGS)
+$(CMORE_SHOBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	$(CC) -c -o $@ $< $(INCLUDES) $(CFLAGS) -fPIC
 
-$(SHADER_OBJ_DIR)/%.spv: $(SHADER_SRC_DIR)/%
-	$(GLSLC)  $< -o $@
+$(CMORE_OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	$(CC) -c -o $@ $< $(INCLUDES) $(CFLAGS) $(LIBS)
 
-$(OBJ_DIR):
-	mkdir $@
-
-$(SHADER_OBJ_DIR):
-	mkdir -p $@
-
-$(RES_DIR):
-	mkdir -p $@
+$(CMORE_TEST_OBJ_DIR)/%.o: $(TESTS_DIR)/%.c
+	$(CC) -c -o $@ $< $(INCLUDES) $(CFLAGS)
 
 .PHONY: clean
 clean:
-	rm -f *~ core burner tests $(INCDIR)/*~
-	rm -r $(OBJ_DIR) $(RES_DIR)
-	$(MAKE) -C $(TOOLS_DIR) clean
+	rm -f -r $(CMORE_OBJ_DIR) $(CMORE_TEST_OBJ_DIR) $(CMORE_SHOBJ_DIR)
+	rm -f $(CMORE_STATIC_LIB) $(CMORE_SHARED_LIB) tests
 
 # Make the obj directory
-$(shell mkdir -p $(OBJ_DIR))
-$(shell mkdir -p $(RES_DIR))
-$(shell mkdir -p $(SHADER_OBJ_DIR))
+$(shell mkdir -p $(CMORE_OBJ_DIR))
+$(shell mkdir -p $(CMORE_TEST_OBJ_DIR))
+$(shell mkdir -p $(CMORE_SHOBJ_DIR))

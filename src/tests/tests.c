@@ -1,22 +1,15 @@
 #include <stdio.h>
 #include "hashmap.h"
 #include "common.h"
-#include "config.h"
-#include "tests.h"
 #include "queue.h"
 #include <stdlib.h>
 #include "threadpool.h"
 #include <time.h>
 
-// Allow default config path to be overruled by compile option
-#ifndef DEFAULT_CONFIG_PATH
-#define DEFAULT_CONFIG_PATH "./config.ini"
-#endif
 
 #define LOG( log, ... ) LOG_MODULE( DEBUG, tests, log, ##__VA_ARGS__ )
 
 void testHashmap();
-void testConfig();
 void testQueues();
 void testThreadpool();
 
@@ -49,25 +42,6 @@ int main(){
 //    testQueues();
     testThreadpool();
     return 0;
-}
-
-void testConfig(){
-    if( loadSystemConfig( "./config.ini" ) ){
-       // printf( "Error loading configuration file\n" );
-    }
-    const char * testPath = pomMapGet( &systemConfig.mapCtx, "modelBasePath", "test" );
-    if( testPath ){
-        LOG( "Model base path: %s", testPath );
-    }
-
-    pomMapSet( &systemConfig.mapCtx, "Delete", "Me" );
-    if( pomMapRemove( &systemConfig.mapCtx, "Delete" ) ){
-        LOG( "Could not remove node" );
-    }
-
-    saveSystemConfig( "./testSave.ini" );
-    
-    clearSystemConfig();
 }
 
 void testHashmap(){
