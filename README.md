@@ -17,9 +17,9 @@ Currently defined in their own .c files, but may later change to a *single file 
 | Linked list | ✓ | ✗ | ✗ |
 
 **Utilities:**
-  * **Hazard Pointers**
+  * **Hazard Pointers**  
    Hazard pointer support for solving ABA problems (and others) in lock-free data structures.
-  * **Threadpool**
+  * **Threadpool**  
    A lock-free threadpool using CMore's data structures for (hopefully) fast and efficient job scheduling. 
 
 **Notes:**
