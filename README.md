@@ -3,13 +3,13 @@
 
 ## Overview
 These are some common utilities that I frequently reuse across projects, so separating them out into their own repo makes it easier to incorporate them.  
-Currently defined in their own .c files, but may later change to a *single file library* type design to remove need for messing about with sub-Makefiles and shared/static linking.  
-"Cross-platform" in quotation marks since the utilities are written exclusively as C11-standard conformant with no platform-specific dependencies, but MSVC does not support C11 (or even C99) so usage with Windows is a little trickier; more on that in [Notes on cross-platform usage](#notes-on-cross-platform-usage).  
+Currently defined in their own .c files, but this may later be changed to a *single file library* type design to remove the need for messing about with sub-Makefiles and shared/static linking.  
+"Cross-platform" is in quotation marks because while the utilities are written exclusively as C11-standard conformant with no platform-specific dependencies, but MSVC does not support C11 (or even C99) so usage with Windows is a little trickier; more on that in [Notes on cross-platform usage](#notes-on-cross-platform-usage).  
 
 ## Current Status
 **Data structures:**
-
-| Data structure| Single-thread | Thread-safe (lock) | Thread-safe (lock-free) |
+The following table lists the data structures that are currently implemented, and the variants available.
+| Data structure| Single-thread | Thread-safe<br>(lock based) | Thread-safe<br>(lock-free) |
 |:-------------:|:-------------:|:-----:|:----:|
 | Stack       | ✓ | ✓ | ✗ |
 | Queue       | ✓ | ✗ | ✓ |
