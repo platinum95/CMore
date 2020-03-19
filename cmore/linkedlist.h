@@ -30,4 +30,8 @@ int pomLinkedListAdd( PomLinkedListCtx *_ctx, PllKeyType key );
 
 PomLinkedListNode * pomLinkedListFind( PomLinkedListCtx *_ctx, PllKeyType _key );
 
+// Pop an item from the front of the list, and place value in _keyValue.
+// Returns 1 if item popped, and 0 if list was empty.
+int pomLinkedListPopFront( PomLinkedListCtx *_ctx, PllKeyType *_keyValue );
+
 #endif //LINKEDLIST_H

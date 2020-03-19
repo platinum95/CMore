@@ -45,3 +45,28 @@ PomLinkedListNode * pomLinkedListFind( PomLinkedListCtx *_ctx, PllKeyType _key )
     }
     return NULL;
 }
+
+int pomLinkedListPopFront( PomLinkedListCtx *_ctx, PllKeyType *_keyValue ){
+    if( _ctx->size == 0 ){
+        return 0;
+    }
+    if( _ctx->head == NULL ){
+        // Some error, size should have been 0
+        return 0;
+    }
+
+    if( _ctx->head == _ctx->tail ){
+        // Last time in list
+        *_keyValue = _ctx->head->key;
+        free( _ctx->head );
+        _ctx->head = _ctx->tail = NULL;
+    }else{
+        *_keyValue = _ctx->head->key;
+        PomLinkedListNode *nNode = _ctx->head->next;
+        free( _ctx->head );
+        _ctx->head = nNode;
+    }
+    return 1;
+
+
+}
